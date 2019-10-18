@@ -1,46 +1,39 @@
 class DynamicBlock extends Block {
   constructor(x, y, w, h, color, properties){
     super(x, y, w, h, color, properties);
-    if(!this.property("vx"))
+    if(!this.property("vx"))  //x velocity
       this.properties.vx = 0;
-    if(!this.property("vy"))
+    if(!this.property("vy"))  //y velocity
       this.properties.vy = 0;
     if(!this.property("mass"))
       this.properties.mass = 100;
-    //v^2 = totalfsum/(.5cpa)
 
-    this.forces = [];
-    this.fxsum = 0;
-    this.fysum = 0;
-    this.properties.vt = Math.sqrt(this.totalForce() / (.5 * 1.1 * 1.225 * (this.w / Global.pixelsPerMeter) ** 2));
+    this.forces = []; //list of all forces acting on this Block
+    this.fxsum = 0; //total x component of all forces
+    this.fysum = 0; //total y component of all forces
   }
   addForce(f){
-    this.forces.push(f);
-    this.fxsum += f.x();
+    this.forces.push(f);  //add to list
+    this.fxsum += f.x();  //add components
     this.fysum += f.y();
-    this.properties.vt = Math.sqrt(this.totalForce() / (.5 * 1.1 * 1.225 * (this.w / Global.pixelsPerMeter) ** 2));
   }
-  totalForce(){
+  totalForce(){ //Pythagorean theorem
     return Math.sqrt(this.fxsum ** 2 + this.fysum ** 2);
   }
   addVx(x){
     this.properties.vx += x;
-    if(Math.sqrt(this.property("vx") ** 2 + this.property("vy") ** 2) > this.property("vt"))
-      this.properties.vx = Math.sign(this.property("vx")) * Math.sqrt(this.property("vt") ** 2 - this.property("vy") ** 2);
   }
   addVy(y){
     this.properties.vy += y;
-    if(Math.sqrt(this.property("vx") ** 2 + this.property("vy") ** 2) > this.property("vt"))
-      this.properties.vy = Math.sign(this.property("vy")) * Math.sqrt(this.property("vt") ** 2 - this.property("vx") ** 2);
   }
-  applyForce(f){
+  applyForce(f){  //F = ma, a = F/m
     this.addVx(f.x() / this.property("mass"));
     this.addVy(f.y() / this.property("mass"));
   }
   applyImpulse(f){  //applies impulse of average force f for Global.idealFrameTime
     this.applyForce(new Force(f.n * Global.idealFrameTime, f.theta));
   }
-  update(p){
+  updateVelocity(){
     let self = this;
     this.forces.forEach(function(f){
       self.applyImpulse(f);
@@ -48,8 +41,5 @@ class DynamicBlock extends Block {
 
     this.x += this.property("vx");
     this.y += this.property("vy");
-
-    if(p)
-      super.update(p);
   }
 }

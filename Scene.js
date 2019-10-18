@@ -1,22 +1,30 @@
 class Scene {
   constructor(){
-    this.objects = [];
-    this.rigids = [];
+    this.objects = [];  //all non-rigid rectangles
+    this.rigids = [];   //only rigid rectangles
   }
   add(o){
-    if(o.properties && o.property("rigid"))
+    if(o.property("rigid")) //if rigid, add to rigid list
       this.rigids.push(o);
-    else
+    else  //else add to regular list
       this.objects.push(o);
   }
   update(cam){
-    this.objects.forEach(function(o){
-      o.draw(cam.offx, cam.offy);
+    //for case of no camera
+    let offx = 0, offy = 0;
+    if(cam){
+      offx = cam.offx;
+      offy = cam.offy;
+    }
+    this.objects.forEach(function(o){ //draw all non-rigids
+      o.draw(offx, offy);
     });
-    this.rigids.forEach(function(r){
-      r.draw(cam.offx, cam.offy);
-      if(r.property("dynamic")){
-        this.rigids.forEach(function(r2){
+    let rigids = this.rigids;
+    rigids.forEach(function(r){  //draw all rigids
+      r.draw(offx, offy);
+      if(r instanceof DynamicBlock){
+        r.updateVelocity();
+        rigids.forEach(function(r2){ //check for collision against other rigids
           if(r2 !== r)
             r2.update(r);
         });
