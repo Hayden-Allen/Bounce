@@ -28,8 +28,8 @@ class Block extends Rect {
 		for(var i = 1; i < distances.length; i++)
 			min = (distances[min] > distances[i] ? i : min);
 
-    let dampening = this.property("dampening");
-    let cfk = this.property("cfk");
+    let dampening = this.property("dampening"); //percent of energy lost on contact
+    let cfk = this.property("cfk"); //coefficient of kinetic friction
 
     let prop = p.properties;
 		if(p.x + p.w > this.x && p.x < this.x + this.w){  //if right of p is past left of this AND left of p is not past right of this
